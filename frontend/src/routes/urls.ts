@@ -1,0 +1,16 @@
+export const layoutUrl = "/";
+export const dashboardUrl = "/admin";
+export const loginUrl = "/login";
+export const userUrl = "/admin/users";
+export const userDetailUrl = "/admin/users/:id";
+export const categoryUrl = "/admin/categories";
+export const productUrl = "/admin/products";
+export const productDetailUrl = "/admin/products/:id";
+export const discountUrl = "/admin/discounts";
+export const supplierUrl = "/admin/suppliers";
+export const invoiceUrl = "/admin/invoices";
+export const invoiceDetailUrl = "/admin/invoices/:id";
+export const orderUrl = "/admin/orders";
+export const orderDetailUrl = "/admin/orders/:id";
+export const error403Url = "/403";
+export const error404Url = "/404";
