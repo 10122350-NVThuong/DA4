@@ -1,0 +1,192 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+model tbl_chitietdonhang {
+  Id          Int          @id @default(autoincrement())
+  IdDonHang   Int?
+  IdSanPham   Int?
+  GiaCa       Int?
+  SoLuongDat  Int?
+  tbl_donhang tbl_donhang? @relation(fields: [IdDonHang], references: [IdDonHang], onDelete: Cascade, onUpdate: NoAction, map: "tbl_chitietdonhang_ibfk_1")
+  tbl_sanpham tbl_sanpham? @relation(fields: [IdSanPham], references: [IdSanPham], onDelete: Cascade, onUpdate: NoAction, map: "tbl_chitietdonhang_ibfk_2")
+
+  @@index([IdDonHang], map: "IdDonHang")
+  @@index([IdSanPham], map: "IdSanPham")
+}
+
+model tbl_chitietphieunhap {
+  Id            Int            @id @default(autoincrement())
+  IdPhieuNhap   Int?
+  IdSanPham     Int?
+  GiaCa         Int?
+  SoLuongNhap   Int?
+  tbl_phieunhap tbl_phieunhap? @relation(fields: [IdPhieuNhap], references: [IdPhieuNhap], onDelete: Cascade, onUpdate: NoAction, map: "tbl_chitietphieunhap_ibfk_1")
+  tbl_sanpham   tbl_sanpham?   @relation(fields: [IdSanPham], references: [IdSanPham], onDelete: Cascade, onUpdate: NoAction, map: "tbl_chitietphieunhap_ibfk_2")
+
+  @@index([IdPhieuNhap], map: "IdPhieuNhap")
+  @@index([IdSanPham], map: "IdSanPham")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model tbl_danhgiasanpham {
+  Id            Int            @id @default(autoincrement())
+  IdNguoiDung   Int?
+  IdSanPham     Int?
+  SoSao         Int?
+  NoiDung       String?        @db.VarChar(255)
+  NgayTao       DateTime       @default(now()) @db.DateTime(0)
+  tbl_nguoidung tbl_nguoidung? @relation(fields: [IdNguoiDung], references: [IdNguoiDung], onDelete: Cascade, onUpdate: NoAction, map: "tbl_danhgiasanpham_ibfk_1")
+  tbl_sanpham   tbl_sanpham?   @relation(fields: [IdSanPham], references: [IdSanPham], onDelete: Cascade, onUpdate: NoAction, map: "tbl_danhgiasanpham_ibfk_2")
+
+  @@index([IdNguoiDung], map: "IdNguoiDung")
+  @@index([IdSanPham], map: "IdSanPham")
+}
+
+model tbl_danhmuc {
+  IdDanhMuc         Int           @id @default(autoincrement())
+  TenDanhMuc        String?       @db.VarChar(255)
+  MoTa              String?       @db.VarChar(255)
+  ParentID          Int?
+  tbl_danhmuc       tbl_danhmuc?  @relation("tbl_danhmucTotbl_danhmuc", fields: [ParentID], references: [IdDanhMuc], onDelete: NoAction, onUpdate: NoAction, map: "fk_danhmuc_parent")
+  other_tbl_danhmuc tbl_danhmuc[] @relation("tbl_danhmucTotbl_danhmuc")
+
+  @@index([ParentID], map: "fk_danhmuc_parent")
+}
+
+model tbl_donhang {
+  IdDonHang          Int                             @id @default(autoincrement())
+  TenNguoiDung       String?                         @db.VarChar(255)
+  SoDienThoai        String?                         @db.VarChar(20)
+  DiaChi             String?                         @db.VarChar(255)
+  TrangThai          tbl_donhang_TrangThai?          @default(Ch__duy_t)
+  NgayDat            DateTime?                       @db.DateTime(0)
+  TamTinh            Int?
+  IdGiamGia          Int?
+  TongTien           Int?
+  TrangThaiThanhToan tbl_donhang_TrangThaiThanhToan? @default(Ch_a_thanh_to_n)
+  LoaiDonHang        tbl_donhang_LoaiDonHang?        @default(Online)
+  IdNguoiDung        Int?
+  tbl_chitietdonhang tbl_chitietdonhang[]
+  tbl_nguoidung      tbl_nguoidung?                  @relation(fields: [IdNguoiDung], references: [IdNguoiDung], onDelete: NoAction, onUpdate: NoAction, map: "IdNguoiDung")
+
+  @@index([IdNguoiDung], map: "IdNguoiDung_idx")
+}
+
+model tbl_giohang {
+  Id            Int            @id @default(autoincrement())
+  IdNguoiDung   Int?
+  IdSanPham     Int?
+  SoLuong       Int?
+  GiaCa         Int?
+  tbl_nguoidung tbl_nguoidung? @relation(fields: [IdNguoiDung], references: [IdNguoiDung], onDelete: Cascade, onUpdate: NoAction, map: "tbl_giohang_ibfk_1")
+  tbl_sanpham   tbl_sanpham?   @relation(fields: [IdSanPham], references: [IdSanPham], onDelete: Cascade, onUpdate: NoAction, map: "tbl_giohang_ibfk_2")
+
+  @@index([IdNguoiDung], map: "IdNguoiDung")
+  @@index([IdSanPham], map: "IdSanPham")
+}
+
+model tbl_magiamgia {
+  IdGiamGia  Int      @id @default(autoincrement())
+  Ma         String   @unique(map: "Ma_UNIQUE") @db.VarChar(20)
+  GiaTri     Int
+  NgayBatDau DateTime @db.DateTime(0)
+  NgayHetHan DateTime @db.DateTime(0)
+  GioiHan    Int?
+  DaSuDung   Int?     @default(0)
+}
+
+model tbl_nguoidung {
+  IdNguoiDung        Int                  @id @default(autoincrement())
+  HoTen              String?              @db.VarChar(255)
+  SoDienThoai        String?              @db.VarChar(15)
+  DiaChi             String?              @db.VarChar(255)
+  Email              String               @unique(map: "Email") @db.VarChar(255)
+  MatKhau            String               @db.VarChar(255)
+  VaiTro             tbl_nguoidung_VaiTro?              @default(Customer)
+  Avatar             String?              @db.VarChar(255)
+  CloudinaryId         String?                @db.VarChar(255)
+
+  Created_at         DateTime?             @default(now())
+  Updated_at         DateTime?             @default(now())
+  tbl_danhgiasanpham tbl_danhgiasanpham[]
+  tbl_donhang        tbl_donhang[]
+  tbl_giohang        tbl_giohang[]
+}
+
+model tbl_nhacungcap {
+  IdNhaCungCap  Int             @id @default(autoincrement())
+  TenNhaCungCap String?         @db.VarChar(255)
+  SoDienThoai   String?         @db.VarChar(20)
+  Email         String?         @db.VarChar(255)
+  DiaChi        String?         @db.VarChar(255)
+  tbl_phieunhap tbl_phieunhap[]
+}
+
+model tbl_phieunhap {
+  IdPhieuNhap          Int                      @id @default(autoincrement())
+  IdNhaCungCap         Int?
+  NguoiNhap            String?                  @db.VarChar(255)
+  NgayNhap             DateTime?                @db.DateTime(0)
+  TongTien             Int?
+  TrangThai            tbl_phieunhap_TrangThai? @default(Ch__duy_t)
+  tbl_chitietphieunhap tbl_chitietphieunhap[]
+  tbl_nhacungcap       tbl_nhacungcap?          @relation(fields: [IdNhaCungCap], references: [IdNhaCungCap], onUpdate: NoAction, map: "tbl_phieunhap_ibfk_1")
+
+  @@index([IdNhaCungCap], map: "IdNhaCungCap")
+}
+
+model tbl_sanpham {
+  IdSanPham            Int                    @id @default(autoincrement())
+  IdDanhMuc            Int?
+  TenSanPham           String?                @db.VarChar(255)
+  Gia                  Int?
+  SoLuongTon           Int?
+  HinhAnh              String?                @db.VarChar(255)
+  CloudinaryId         String?                @db.VarChar(255)
+
+  MoTa                 String?                @db.VarChar(255)
+  DacDiem              String?                @db.VarChar(255)
+  CongDung             String?                @db.VarChar(255)
+  tbl_chitietdonhang   tbl_chitietdonhang[]
+  tbl_chitietphieunhap tbl_chitietphieunhap[]
+  tbl_danhgiasanpham   tbl_danhgiasanpham[]
+  tbl_giohang          tbl_giohang[]
+}
+
+enum tbl_donhang_TrangThai {
+  Ch__duy_t     @map("Chờ duyệt")
+  ang_x__l_     @map("Đang xử lý")
+  ang_giao_h_ng @map("Đang giao hàng")
+  ho_n_th_nh    @map("Đã hoàn thành")
+  H_y           @map("Hủy")
+}
+
+enum tbl_phieunhap_TrangThai {
+  Ch__duy_t @map("Chờ duyệt")
+  duy_t     @map("Đã duyệt")
+  nh_p_kho  @map("Đã nhập kho")
+  H_y       @map("Hủy")
+}
+
+enum tbl_donhang_TrangThaiThanhToan {
+  Ch_a_thanh_to_n @map("Chưa thanh toán")
+  thanh_to_n      @map("Đã thanh toán")
+}
+
+enum tbl_donhang_LoaiDonHang {
+  Online
+  Offline
+}
+
+enum tbl_nguoidung_VaiTro {
+  Admin
+  Customer
+  Staff
+}
