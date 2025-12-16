@@ -61,7 +61,7 @@ export class PhieuNhapService {
         NguoiNhap: dto.NguoiNhap,
         NgayNhap: dto.NgayNhap ?? new Date(),
         TongTien: tongTien,
-        TrangThai: dto.TrangThai ?? tbl_phieunhap_TrangThai.Ch__duy_t,
+        TrangThai: dto.TrangThai ?? tbl_phieunhap_TrangThai.Cho_duyet,
 
         tbl_chitietphieunhap: {
           create: dto.ChiTiet.map((item) => ({
@@ -87,7 +87,7 @@ export class PhieuNhapService {
       throw new NotFoundException('Phiếu nhập không tồn tại');
     }
 
-    if (phieuNhap.TrangThai !== tbl_phieunhap_TrangThai.Ch__duy_t) {
+    if (phieuNhap.TrangThai !== tbl_phieunhap_TrangThai.Cho_duyet) {
       throw new BadRequestException(
         'Chỉ được sửa phiếu nhập ở trạng thái Chờ duyệt',
       );
@@ -124,7 +124,7 @@ export class PhieuNhapService {
         throw new NotFoundException('Phiếu nhập không tồn tại');
       }
 
-      if (phieuNhap.TrangThai !== tbl_phieunhap_TrangThai.Ch__duy_t) {
+      if (phieuNhap.TrangThai !== tbl_phieunhap_TrangThai.Cho_duyet) {
         throw new BadRequestException('Phiếu nhập đã được xử lý');
       }
 
@@ -157,7 +157,7 @@ export class PhieuNhapService {
       return tx.tbl_phieunhap.update({
         where: { IdPhieuNhap },
         data: {
-          TrangThai: tbl_phieunhap_TrangThai.nh_p_kho,
+          TrangThai: tbl_phieunhap_TrangThai.Da_nhap_kho,
         },
       });
     });

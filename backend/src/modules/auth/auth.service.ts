@@ -20,33 +20,35 @@ export class AuthService {
   async login(loginDto: LoginDto) {
     const { email, password } = loginDto;
 
-    const employee = await this.prisma.tbl_nguoidung.findFirst({
+    const user = await this.prisma.tbl_nguoidung.findFirst({
       where: { Email: email },
     });
 
-    if (!employee || !employee.MatKhau || !password) {
+    if (!user || !user.MatKhau || !password) {
       throw new UnauthorizedException('Email hoặc mật khẩu không đúng');
     }
 
-    const isPasswordValid = await bcrypt.compare(password, employee?.MatKhau);
+    const isPasswordValid = await bcrypt.compare(password, user?.MatKhau);
 
     if (!isPasswordValid) {
       throw new UnauthorizedException('Email hoặc mật khẩu không đúng');
     }
 
     const payload = {
-      sub: employee.IdNguoiDung,
-      Email: employee.Email,
-      roles: employee.VaiTro,
+      sub: user.IdNguoiDung,
+      Email: user.Email,
+      roles: user.VaiTro,
     };
 
     return {
       accessToken: await this.jwtService.signAsync(payload),
       user: {
-        id: employee.IdNguoiDung,
-        HoTen: employee.HoTen,
-        Email: employee.Email,
-        roles: employee.VaiTro,
+        id: user.IdNguoiDung,
+        HoTen: user.HoTen,
+        Email: user.Email,
+        DiaChi: user.DiaChi,
+        SoDienThoai: user.SoDienThoai,
+        roles: user.VaiTro,
       },
     };
   }

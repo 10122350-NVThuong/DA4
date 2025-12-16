@@ -26,6 +26,7 @@ import ProtectedRoute from "../../src/modules/auth/components/ProtectedRouter";
 import MainLayout from "@/components/layout/Layout";
 import { Category } from "@/modules/categories/views";
 import { Product } from "@/modules/products/views";
+import { Order } from "@/modules/orders/views";
 
 export const createRouterConfig = () => {
   const { Admin, Staff } = LAT_BASE_ROLES;
@@ -54,6 +55,10 @@ export const createRouterConfig = () => {
         {
           path: productUrl,
           element: <Product />,
+        },
+        {
+          path: orderUrl,
+          element: <Order />,
         },
       ],
     },

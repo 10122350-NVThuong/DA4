@@ -7,6 +7,9 @@ export const userAvatarStorage = new CloudinaryStorage({
     folder: 'users',
     resource_type: 'image',
     allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-    transformation: [{ width: 300, height: 300, crop: 'fill' }],
+    transformation: [
+      { width: 800, height: 800, crop: 'limit' },
+      { quality: 'auto' },
+    ],
   }),
 });

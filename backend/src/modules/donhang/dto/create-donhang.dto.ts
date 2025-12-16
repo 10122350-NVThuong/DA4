@@ -1,9 +1,18 @@
-import { IsInt, IsOptional, IsString, IsEnum } from 'class-validator';
+import {
+  IsInt,
+  IsOptional,
+  IsString,
+  IsEnum,
+  IsArray,
+  ValidateNested,
+} from 'class-validator';
 import {
   tbl_donhang_TrangThai,
   tbl_donhang_TrangThaiThanhToan,
   tbl_donhang_LoaiDonHang,
 } from '@prisma/client';
+import { Type } from 'class-transformer';
+import { CreateChitietdonhangDto } from 'src/modules/chitietdonhang/dto/create-chitietdonhang.dto';
 
 export class CreateDonhangDto {
   @IsOptional() @IsString() TenNguoiDung?: string;
@@ -29,4 +38,9 @@ export class CreateDonhangDto {
   LoaiDonHang?: tbl_donhang_LoaiDonHang;
 
   @IsOptional() @IsInt() IdNguoiDung?: number;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateChitietdonhangDto)
+  ChiTiet: CreateChitietdonhangDto[];
 }

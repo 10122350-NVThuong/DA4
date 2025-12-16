@@ -6,6 +6,8 @@ import { PhieuNhapModule } from './modules/phieunhap/phieunhap.module';
 import { DanhMucModule } from './modules/danhmuc/danhmuc.module';
 import { NguoiDungModule } from './modules/nguoidung/nguoidung.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { GioHangModule } from './modules/giohang/giohang.module';
+import { DonHangModule } from './modules/donhang/donhang.module';
 
 @Module({
   imports: [
@@ -13,7 +15,10 @@ import { AuthModule } from './modules/auth/auth.module';
     PhieuNhapModule,
     DanhMucModule,
     NguoiDungModule,
+    DonHangModule,
+    PhieuNhapModule,
     AuthModule,
+    GioHangModule,
   ],
   controllers: [AppController],
   providers: [AppService],

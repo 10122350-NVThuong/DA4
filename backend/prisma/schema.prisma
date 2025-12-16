@@ -65,12 +65,12 @@ model tbl_donhang {
   TenNguoiDung       String?                         @db.VarChar(255)
   SoDienThoai        String?                         @db.VarChar(20)
   DiaChi             String?                         @db.VarChar(255)
-  TrangThai          tbl_donhang_TrangThai?          @default(Ch__duy_t)
+  TrangThai          tbl_donhang_TrangThai?          @default(Cho_duyet)
   NgayDat            DateTime?                       @db.DateTime(0)
   TamTinh            Int?
   IdGiamGia          Int?
   TongTien           Int?
-  TrangThaiThanhToan tbl_donhang_TrangThaiThanhToan? @default(Ch_a_thanh_to_n)
+  TrangThaiThanhToan tbl_donhang_TrangThaiThanhToan? @default(Chua_thanh_toan)
   LoaiDonHang        tbl_donhang_LoaiDonHang?        @default(Online)
   IdNguoiDung        Int?
   tbl_chitietdonhang tbl_chitietdonhang[]
@@ -135,7 +135,7 @@ model tbl_phieunhap {
   NguoiNhap            String?                  @db.VarChar(255)
   NgayNhap             DateTime?                @db.DateTime(0)
   TongTien             Int?
-  TrangThai            tbl_phieunhap_TrangThai? @default(Ch__duy_t)
+  TrangThai            tbl_phieunhap_TrangThai? @default(Cho_duyet)
   tbl_chitietphieunhap tbl_chitietphieunhap[]
   tbl_nhacungcap       tbl_nhacungcap?          @relation(fields: [IdNhaCungCap], references: [IdNhaCungCap], onUpdate: NoAction, map: "tbl_phieunhap_ibfk_1")
 
@@ -161,23 +161,23 @@ model tbl_sanpham {
 }
 
 enum tbl_donhang_TrangThai {
-  Ch__duy_t     @map("Chờ duyệt")
-  ang_x__l_     @map("Đang xử lý")
-  ang_giao_h_ng @map("Đang giao hàng")
-  ho_n_th_nh    @map("Đã hoàn thành")
-  H_y           @map("Hủy")
+  Cho_duyet
+  Dang_xu_ly
+  Dang_giao_hang
+  Da_hoan_thanh
+  Huy
 }
 
 enum tbl_phieunhap_TrangThai {
-  Ch__duy_t @map("Chờ duyệt")
-  duy_t     @map("Đã duyệt")
-  nh_p_kho  @map("Đã nhập kho")
-  H_y       @map("Hủy")
+  Cho_duyet
+  Da_duyet
+  Da_nhap_kho
+  Huy
 }
 
 enum tbl_donhang_TrangThaiThanhToan {
-  Ch_a_thanh_to_n @map("Chưa thanh toán")
-  thanh_to_n      @map("Đã thanh toán")
+  Chua_thanh_toan
+  Da_thanh_toan
 }
 
 enum tbl_donhang_LoaiDonHang {

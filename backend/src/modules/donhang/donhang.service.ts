@@ -8,18 +8,64 @@ export class DonHangService {
   constructor(private prisma: PrismaService) {}
 
   findAll() {
-    return this.prisma.tbl_donhang.findMany();
+    return this.prisma.tbl_donhang.findMany({
+      orderBy: { NgayDat: 'desc' },
+    });
   }
 
   findOne(IdDonHang: number) {
     return this.prisma.tbl_donhang.findUnique({
       where: { IdDonHang },
+      include: {
+        tbl_chitietdonhang: {
+          include: {
+            tbl_sanpham: true,
+          },
+        },
+      },
+    });
+  }
+
+  findByUser(IdNguoiDung: number) {
+    return this.prisma.tbl_donhang.findMany({
+      where: { IdNguoiDung },
+      include: {
+        tbl_chitietdonhang: {
+          include: {
+            tbl_sanpham: true,
+          },
+        },
+      },
     });
   }
 
   create(data: CreateDonhangDto) {
+    const { ChiTiet, ...donhangData } = data;
+
     return this.prisma.tbl_donhang.create({
-      data,
+      data: {
+        ...donhangData,
+
+        tbl_chitietdonhang: {
+          create: ChiTiet.map((item) => ({
+            GiaCa: item.GiaCa,
+            SoLuongDat: item.SoLuongDat,
+
+            tbl_sanpham: {
+              connect: {
+                IdSanPham: item.IdSanPham,
+              },
+            },
+          })),
+        },
+      },
+      include: {
+        tbl_chitietdonhang: {
+          include: {
+            tbl_sanpham: true,
+          },
+        },
+      },
     });
   }
 

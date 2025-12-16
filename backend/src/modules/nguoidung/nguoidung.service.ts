@@ -68,11 +68,11 @@ export class NguoiDungService {
     return rest;
   }
 
-  async updateImage(IdNguoiDung: number, Avatar: string, publicId: string) {
+  async updateImage(IdNguoiDung: number, imageUrl: string, publicId: string) {
     return this.prisma.tbl_nguoidung.update({
       where: { IdNguoiDung },
       data: {
-        Avatar,
+        Avatar: imageUrl,
         CloudinaryId: publicId,
       },
     });
