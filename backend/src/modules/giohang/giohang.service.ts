@@ -16,9 +16,40 @@ export class GioHangService {
     });
   }
 
-  create(dto: CreateGiohangDto) {
+  async create(dto: CreateGiohangDto) {
+    const { IdNguoiDung, IdSanPham } = dto;
+
+    const existed = await this.prisma.tbl_giohang.findFirst({
+      where: {
+        IdNguoiDung,
+        IdSanPham,
+      },
+    });
+
+    const soLuongMoi = (existed?.SoLuong ?? 0) + (dto.SoLuong ?? 0);
+
+    if (existed) {
+      return this.prisma.tbl_giohang.update({
+        where: { Id: existed.Id },
+        data: {
+          SoLuong: soLuongMoi,
+        },
+        include: {
+          tbl_sanpham: true,
+        },
+      });
+    }
+
     return this.prisma.tbl_giohang.create({
-      data: dto,
+      data: {
+        IdNguoiDung,
+        IdSanPham,
+        SoLuong: dto.SoLuong ?? 1,
+        GiaCa: dto.GiaCa,
+      },
+      include: {
+        tbl_sanpham: true,
+      },
     });
   }
 
@@ -34,11 +65,10 @@ export class GioHangService {
     });
   }
 
-  async deleteItem(dto: UpdateGiohangDto) {
-    return this.prisma.tbl_giohang.deleteMany({
+  async deleteItem(Id: number) {
+    return this.prisma.tbl_giohang.delete({
       where: {
-        IdNguoiDung: dto.IdNguoiDung,
-        IdSanPham: dto.IdSanPham,
+        Id,
       },
     });
   }

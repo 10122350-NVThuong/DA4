@@ -32,8 +32,8 @@ export class GioHangController {
     return this.giohangService.updateQuantity(dto);
   }
 
-  @Delete('delete')
-  deleteItem(@Body() dto: UpdateGiohangDto) {
-    return this.giohangService.deleteItem(dto);
+  @Delete(':id')
+  deleteItem(@Param('id') id: string) {
+    return this.giohangService.deleteItem(Number(id));
   }
 }

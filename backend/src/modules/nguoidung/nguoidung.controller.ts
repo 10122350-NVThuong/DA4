@@ -54,6 +54,7 @@ export class NguoiDungController {
     @Param('IdNguoiDung') IdNguoiDung: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
+    console.log(file);
     return this.nguoiDungService.updateImage(
       +IdNguoiDung,
       file.path,

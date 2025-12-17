@@ -8,7 +8,8 @@ import {
   updateOrder,
   deleteOrder,
 } from "../api/order-api";
-import { TRANG_THAI_MAP } from "../utils/status";
+import ModalTaoDonHang from "../components/ModalTaoDonHang";
+import { THANH_TOAN_MAP, TRANG_THAI_MAP } from "../utils/status";
 import { FiEdit } from "react-icons/fi";
 import { MdDelete } from "react-icons/md";
 import type { IOrder } from "../types";
@@ -46,11 +47,23 @@ export const Order: React.FC = () => {
 
   const handleCreateOrder = async (values) => {
     try {
-      const today = new Date().toISOString().split("T")[0];
+      const today = new Date().toISOString();
 
       const payload = {
-        ...values,
+        TenNguoiDung: values.TenNguoiDung,
+        SoDienThoai: values.SoDienThoai,
+        DiaChi: values.DiaChi,
         NgayDat: today,
+        TrangThai: values.TrangThai,
+        TrangThaiThanhToan: values.TrangThaiThanhToan,
+        LoaiDonHang: values.LoaiDonHang,
+        TamTinh: values.TamTinh,
+        TongTien: values.TamTinh,
+        ChiTiet: values.SanPham.map((sp: any) => ({
+          IdSanPham: sp.IdSanPham,
+          SoLuongDat: sp.SoLuongDat,
+          GiaCa: sp.GiaDat,
+        })),
       };
 
       await createOrder(payload);
@@ -110,6 +123,11 @@ export const Order: React.FC = () => {
       render: (v: string) => TRANG_THAI_MAP[v],
     },
     {
+      title: "Thanh toán",
+      dataIndex: "TrangThaiThanhToan",
+      render: (v: string) => THANH_TOAN_MAP[v],
+    },
+    {
       title: "Ngày đặt",
       dataIndex: "NgayDat",
       render: (v: string) => new Date(v).toLocaleDateString("vi-VN"),
@@ -161,7 +179,7 @@ export const Order: React.FC = () => {
           style={{ background: "green", color: "#fff" }}
           onClick={() => setModalVisible(true)}
         >
-          +
+          + Tạo đơn
         </Button>
       </div>
 
@@ -173,6 +191,12 @@ export const Order: React.FC = () => {
           pagination={{ pageSize: 5 }}
         />
       </Spin>
+
+      <ModalTaoDonHang
+        visible={modalVisible}
+        onCancel={() => setModalVisible(false)}
+        onOk={handleCreateOrder}
+      />
 
       <ModalChiTietDonHang
         visible={modalDetailVisible}

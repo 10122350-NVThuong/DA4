@@ -12,7 +12,6 @@ import {
 import { SanPhamService } from './sanpham.service';
 import { CreateSanPhamDto } from './dto/create-sanpham.dto';
 import { UpdateSanPhamDto } from './dto/update-sanpham.dto';
-import { Auth } from 'src/common/decorators/auth.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { productImageStorage } from 'src/cloudinary/product.storage';
 
@@ -21,7 +20,6 @@ export class SanPhamController {
   constructor(private readonly sanPhamService: SanPhamService) {}
 
   @Get()
-  @Auth()
   findAll() {
     return this.sanPhamService.findAll();
   }
