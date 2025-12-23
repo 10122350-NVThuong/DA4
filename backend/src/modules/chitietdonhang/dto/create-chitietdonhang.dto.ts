@@ -13,7 +13,6 @@ export class CreateChitietdonhangDto {
   @IsInt()
   GiaCa?: number;
 
-  @IsOptional()
   @IsInt()
-  SoLuongDat?: number;
+  SoLuongDat: number;
 }

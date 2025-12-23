@@ -12,7 +12,6 @@ import { tbl_phieunhap_TrangThai } from '@prisma/client';
 export class PhieuNhapService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // ===================== GET =====================
   findAll() {
     return this.prisma.tbl_phieunhap.findMany({
       include: {
@@ -43,18 +42,15 @@ export class PhieuNhapService {
     });
   }
 
-  // ===================== CREATE =====================
   async create(dto: CreatePhieunhapDto) {
     if (!dto.ChiTiet || dto.ChiTiet.length === 0) {
       throw new BadRequestException('Phiếu nhập phải có chi tiết');
     }
 
-    // 1. Tính tổng tiền
     const tongTien = dto.ChiTiet.reduce((sum, item) => {
       return sum + (item.GiaCa ?? 0) * (item.SoLuongNhap ?? 0);
     }, 0);
 
-    // 2. Create phiếu nhập + chi tiết
     return this.prisma.tbl_phieunhap.create({
       data: {
         IdNhaCungCap: dto.IdNhaCungCap,
@@ -77,7 +73,6 @@ export class PhieuNhapService {
     });
   }
 
-  // ===================== UPDATE (HEADER ONLY) =====================
   async update(IdPhieuNhap: number, dto: UpdatePhieunhapDto) {
     const phieuNhap = await this.prisma.tbl_phieunhap.findUnique({
       where: { IdPhieuNhap },
@@ -103,14 +98,12 @@ export class PhieuNhapService {
     });
   }
 
-  // ===================== DELETE =====================
   async delete(IdPhieuNhap: number) {
     return this.prisma.tbl_phieunhap.delete({
       where: { IdPhieuNhap },
     });
   }
 
-  // ===================== DUYỆT + NHẬP KHO =====================
   async duyetPhieuNhap(IdPhieuNhap: number) {
     return this.prisma.$transaction(async (tx) => {
       const phieuNhap = await tx.tbl_phieunhap.findUnique({
@@ -128,32 +121,43 @@ export class PhieuNhapService {
         throw new BadRequestException('Phiếu nhập đã được xử lý');
       }
 
-      // 1. Cộng tồn kho
       for (const item of phieuNhap.tbl_chitietphieunhap) {
         if (!item.IdSanPham) {
           throw new BadRequestException('Chi tiết phiếu nhập thiếu IdSanPham');
         }
 
-        await tx.tbl_sanpham.update({
+        const sanpham = await tx.tbl_sanpham.findUnique({
           where: { IdSanPham: item.IdSanPham },
-          data: {
-            SoLuongTon: {
-              increment: item.SoLuongNhap ?? 0,
-            },
-          },
         });
 
-        await tx.tbl_sanpham.update({
-          where: { IdSanPham: item.IdSanPham },
-          data: {
-            SoLuongTon: {
-              increment: item.SoLuongNhap ?? 0,
+        if (!sanpham) {
+          throw new BadRequestException(
+            `Sản phẩm ${item.IdSanPham} không tồn tại`,
+          );
+        }
+
+        const soLuongNhap = item.SoLuongNhap ?? 0;
+
+        if (sanpham.SoLuongTon === null) {
+          // Nếu muốn cho phép null → set về 0 trước
+          await tx.tbl_sanpham.update({
+            where: { IdSanPham: item.IdSanPham },
+            data: {
+              SoLuongTon: soLuongNhap,
             },
-          },
-        });
+          });
+        } else {
+          await tx.tbl_sanpham.update({
+            where: { IdSanPham: item.IdSanPham },
+            data: {
+              SoLuongTon: {
+                increment: soLuongNhap,
+              },
+            },
+          });
+        }
       }
 
-      // 2. Update trạng thái phiếu nhập
       return tx.tbl_phieunhap.update({
         where: { IdPhieuNhap },
         data: {

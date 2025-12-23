@@ -17,7 +17,6 @@ import { UpdatePhieunhapDto } from './dto/update-phieunhap.dto';
 export class PhieuNhapController {
   constructor(private readonly phieunhapService: PhieuNhapService) {}
 
-  // ================== GET ==================
   @Get()
   findAll() {
     return this.phieunhapService.findAll();
@@ -28,13 +27,11 @@ export class PhieuNhapController {
     return this.phieunhapService.findOne(IdPhieuNhap);
   }
 
-  // ================== CREATE ==================
   @Post()
   create(@Body() dto: CreatePhieunhapDto) {
     return this.phieunhapService.create(dto);
   }
 
-  // ================== UPDATE ==================
   @Put(':IdPhieuNhap')
   update(
     @Param('IdPhieuNhap', ParseIntPipe) IdPhieuNhap: number,
@@ -43,13 +40,11 @@ export class PhieuNhapController {
     return this.phieunhapService.update(IdPhieuNhap, dto);
   }
 
-  // ================== DELETE ==================
   @Delete(':IdPhieuNhap')
   delete(@Param('IdPhieuNhap', ParseIntPipe) IdPhieuNhap: number) {
     return this.phieunhapService.delete(IdPhieuNhap);
   }
 
-  // ================== APPROVE / NHẬP KHO ==================
   @Patch(':IdPhieuNhap/duyet')
   duyet(@Param('IdPhieuNhap', ParseIntPipe) IdPhieuNhap: number) {
     return this.phieunhapService.duyetPhieuNhap(IdPhieuNhap);

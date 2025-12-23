@@ -12,7 +12,7 @@ export class CreateSanPhamDto {
 
   @IsOptional()
   @IsInt()
-  ParentID?: number; // chỉ dùng ở FE
+  ParentID?: number;
 
   @IsOptional()
   @IsInt()
