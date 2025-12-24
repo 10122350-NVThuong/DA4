@@ -45,7 +45,7 @@ export const Order: React.FC = () => {
     }
   };
 
-  const handleCreateOrder = async (values) => {
+  const handleCreateOrder = async (values: IOrder) => {
     try {
       const today = new Date().toISOString();
 
@@ -59,7 +59,7 @@ export const Order: React.FC = () => {
         LoaiDonHang: values.LoaiDonHang,
         TamTinh: values.TamTinh,
         TongTien: values.TamTinh,
-        ChiTiet: values.SanPham.map((sp: any) => ({
+        ChiTiet: values.tbl_chitietdonhang.map((sp: any) => ({
           IdSanPham: sp.IdSanPham,
           SoLuongDat: sp.SoLuongDat,
           GiaCa: sp.GiaDat,

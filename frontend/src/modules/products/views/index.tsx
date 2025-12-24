@@ -3,7 +3,6 @@ import { Table, Button, Space, Image, message, Popconfirm } from "antd";
 import ProductModal from "../components/modalProduct";
 import type { IProduct } from "../types";
 import type { IDanhMuc } from "@/modules/categories/types";
-import { BASE_URL } from "@/constant/config";
 import { productApi } from "../api/products-api";
 import { danhmucApi } from "../../categories/api/categories_api";
 

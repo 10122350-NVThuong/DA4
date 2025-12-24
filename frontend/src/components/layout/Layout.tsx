@@ -25,10 +25,6 @@ function getItem(label: string, key: string, icon: React.ReactNode): MenuItem {
   return { key, icon, label };
 }
 
-/**
- * key = ""  -> /admin (Dashboard)
- * key = xxx -> /admin/xxx
- */
 const menuItems: MenuItem[] = [
   getItem("Dashboard", "", <PieChartOutlined />),
   getItem("Quản lý sản phẩm", "products", <ProductOutlined />),
@@ -36,6 +32,7 @@ const menuItems: MenuItem[] = [
   getItem("Quản lý danh mục sản phẩm", "categories", <AppstoreOutlined />),
   getItem("Quản lý hóa đơn nhập", "invoices", <FileTextOutlined />),
   getItem("Quản lý đơn hàng", "orders", <ShoppingCartOutlined />),
+  getItem("Quản lý nhà cung cấp", "suppliers", <ShoppingCartOutlined />),
 ];
 
 export default function MainLayout() {

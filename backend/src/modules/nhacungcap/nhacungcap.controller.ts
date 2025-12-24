@@ -6,6 +6,7 @@ import {
   Param,
   Put,
   Delete,
+  Patch,
 } from '@nestjs/common';
 import { NhaCungCapService } from './nhacungcap.service';
 import { CreateNhacungcapDto } from './dto/create-nhacungcap.dto';
@@ -31,7 +32,7 @@ export class NhaCungCapController {
     return this.NhaCungCapService.create(dto);
   }
 
-  @Put(':IdNhaCungCap')
+  @Patch(':IdNhaCungCap')
   update(
     @Param('IdNhaCungCap') IdNhaCungCap: string,
     @Body() dto: UpdateNhacungcapDto,

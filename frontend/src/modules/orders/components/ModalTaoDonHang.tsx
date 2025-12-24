@@ -96,7 +96,7 @@ export default function ModalTaoDonHang({ visible, onOk, onCancel }) {
 
         <Divider />
 
-        <Form.List name="SanPham">
+        <Form.List name="tbl_chitietdonhang">
           {(fields, { add, remove }) => (
             <>
               {fields.map(({ key, name }) => (

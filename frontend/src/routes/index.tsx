@@ -27,6 +27,8 @@ import MainLayout from "@/components/layout/Layout";
 import { Category } from "@/modules/categories/views";
 import { Product } from "@/modules/products/views";
 import { Order } from "@/modules/orders/views";
+import { Supplier } from "@/modules/suppliers/views";
+import { Invoice } from "@/modules/invoices/views";
 
 export const createRouterConfig = () => {
   const { Admin, Staff } = LAT_BASE_ROLES;
@@ -59,6 +61,14 @@ export const createRouterConfig = () => {
         {
           path: orderUrl,
           element: <Order />,
+        },
+        {
+          path: supplierUrl,
+          element: <Supplier />,
+        },
+        {
+          path: invoiceUrl,
+          element: <Invoice />,
         },
       ],
     },
