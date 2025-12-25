@@ -36,5 +36,5 @@ export class CreatePhieunhapDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateChitietphieunhapDto)
-  ChiTiet: CreateChitietphieunhapDto[];
+  tbl_chitietphieunhap: CreateChitietphieunhapDto[];
 }

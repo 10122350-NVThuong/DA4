@@ -9,6 +9,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { GioHangModule } from './modules/giohang/giohang.module';
 import { DonHangModule } from './modules/donhang/donhang.module';
 import { NhaCungCapModule } from './modules/nhacungcap/nhacungcap.module';
+import { StatisticsModule } from './modules/thongke/thongke.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { NhaCungCapModule } from './modules/nhacungcap/nhacungcap.module';
     AuthModule,
     GioHangModule,
     NhaCungCapModule,
+    StatisticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Modal,
   Form,
@@ -8,13 +8,20 @@ import {
   Space,
   Button,
   Divider,
+  Row,
+  Col,
+  Typography,
+  Card,
+  Statistic,
 } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { productApi } from "@/modules/products/api/products-api";
 
+const { Text } = Typography;
+
 export default function ModalTaoDonHang({ visible, onOk, onCancel }) {
   const [form] = Form.useForm();
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<any[]>([]);
 
   useEffect(() => {
     if (!visible) return;
@@ -28,27 +35,32 @@ export default function ModalTaoDonHang({ visible, onOk, onCancel }) {
     form.resetFields();
   }, [visible]);
 
-  const sanPhamValues = Form.useWatch("SanPham", form) || [];
+  const items = Form.useWatch("tbl_chitietdonhang", form) || [];
 
-  const tamTinh = sanPhamValues.reduce(
-    (sum: number, sp: any) => sum + (sp?.SoLuongDat || 0) * (sp?.GiaDat || 0),
-    0
+  const tamTinh = useMemo(
+    () =>
+      items.reduce(
+        (sum: number, sp: any) =>
+          sum + (sp?.SoLuongDat || 0) * (sp?.GiaDat || 0),
+        0
+      ),
+    [items]
   );
 
-  const handleSelectProduct = (productId, index) => {
+  const handleSelectProduct = (productId: number, index: number) => {
     const product = products.find((p) => p.IdSanPham === productId);
     if (!product) return;
 
-    const current = form.getFieldValue("SanPham") || [];
+    const current = form.getFieldValue("tbl_chitietdonhang") || [];
     current[index] = {
       ...current[index],
       GiaDat: product.Gia,
     };
 
-    form.setFieldsValue({ SanPham: current });
+    form.setFieldsValue({ tbl_chitietdonhang: current });
   };
 
-  const handleFinish = (values) => {
+  const handleFinish = (values: any) => {
     onOk({
       ...values,
       TamTinh: tamTinh,
@@ -60,95 +72,137 @@ export default function ModalTaoDonHang({ visible, onOk, onCancel }) {
 
   return (
     <Modal
-      title="Tạo đơn hàng"
+      title="🧾 Tạo đơn hàng"
       open={visible}
       onCancel={onCancel}
       onOk={() => form.submit()}
-      width={800}
+      width={900}
       destroyOnClose
     >
       <Form form={form} layout="vertical" onFinish={handleFinish}>
-        <Form.Item
-          label="Tên khách hàng"
-          name="TenNguoiDung"
-          rules={[{ required: true, message: "Nhập tên khách hàng" }]}
-        >
-          <Input placeholder="Nhập tên khách hàng" />
-        </Form.Item>
+        {/* ================= KHÁCH HÀNG ================= */}
+        <Card size="small" title="Thông tin khách hàng">
+          <Row gutter={16}>
+            <Col span={8}>
+              <Form.Item
+                label="Tên khách hàng"
+                name="TenNguoiDung"
+                rules={[{ required: true }]}
+              >
+                <Input placeholder="Nguyễn Văn A" />
+              </Form.Item>
+            </Col>
 
-        <Space style={{ display: "flex" }} size="large">
-          <Form.Item
-            label="Số điện thoại"
-            name="SoDienThoai"
-            rules={[{ required: true, message: "Nhập số điện thoại" }]}
-          >
-            <Input />
-          </Form.Item>
+            <Col span={8}>
+              <Form.Item
+                label="Số điện thoại"
+                name="SoDienThoai"
+                rules={[{ required: true }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
 
-          <Form.Item
-            label="Địa chỉ"
-            name="DiaChi"
-            rules={[{ required: true, message: "Nhập địa chỉ" }]}
-          >
-            <Input />
-          </Form.Item>
-        </Space>
+            <Col span={8}>
+              <Form.Item
+                label="Địa chỉ"
+                name="DiaChi"
+                rules={[{ required: true }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Card>
 
         <Divider />
 
-        <Form.List name="tbl_chitietdonhang">
-          {(fields, { add, remove }) => (
-            <>
-              {fields.map(({ key, name }) => (
-                <Space
-                  key={key}
-                  style={{ display: "flex", marginBottom: 8 }}
-                  align="baseline"
-                >
-                  <Form.Item
-                    name={[name, "IdSanPham"]}
-                    rules={[{ required: true }]}
-                  >
-                    <Select
-                      placeholder="Sản phẩm"
-                      style={{ width: 220 }}
-                      onChange={(v) => handleSelectProduct(v, name)}
-                      options={products.map((p) => ({
-                        value: p.IdSanPham,
-                        label: p.TenSanPham,
-                      }))}
-                    />
-                  </Form.Item>
+        {/* ================= SẢN PHẨM ================= */}
+        <Card size="small" title="Danh sách sản phẩm">
+          <Form.List name="tbl_chitietdonhang">
+            {(fields, { add, remove }) => (
+              <>
+                {/* HEADER */}
+                <Row gutter={8} style={{ marginBottom: 8 }}>
+                  <Col span={8}>
+                    <Text strong>Sản phẩm</Text>
+                  </Col>
+                  <Col span={4}>
+                    <Text strong>SL</Text>
+                  </Col>
+                  <Col span={6}>
+                    <Text strong>Giá</Text>
+                  </Col>
+                  <Col span={4}>
+                    <Text strong>Thành tiền</Text>
+                  </Col>
+                  <Col span={2}></Col>
+                </Row>
 
-                  <Form.Item
-                    name={[name, "SoLuongDat"]}
-                    rules={[{ required: true }]}
-                  >
-                    <InputNumber min={1} placeholder="SL" />
-                  </Form.Item>
+                {fields.map(({ key, name }) => {
+                  const sl = items?.[name]?.SoLuongDat || 0;
+                  const gia = items?.[name]?.GiaDat || 0;
 
-                  <Form.Item
-                    name={[name, "GiaDat"]}
-                    rules={[{ required: true }]}
-                  >
-                    <InputNumber
-                      min={0}
-                      addonAfter="đ"
-                      formatter={(v) =>
-                        v ? Number(v).toLocaleString("vi-VN") : ""
-                      }
-                      parser={(v: any) => v.replace(/\./g, "")}
-                    />
-                  </Form.Item>
+                  return (
+                    <Row key={key} gutter={8} align="middle">
+                      <Col span={8}>
+                        <Form.Item
+                          name={[name, "IdSanPham"]}
+                          rules={[{ required: true }]}
+                        >
+                          <Select
+                            placeholder="Chọn sản phẩm"
+                            onChange={(v) => handleSelectProduct(v, name)}
+                            options={products.map((p) => ({
+                              value: p.IdSanPham,
+                              label: p.TenSanPham,
+                            }))}
+                          />
+                        </Form.Item>
+                      </Col>
 
-                  <MinusCircleOutlined
-                    onClick={() => remove(name)}
-                    style={{ color: "red", fontSize: 18 }}
-                  />
-                </Space>
-              ))}
+                      <Col span={4}>
+                        <Form.Item
+                          name={[name, "SoLuongDat"]}
+                          rules={[{ required: true }]}
+                        >
+                          <InputNumber min={1} style={{ width: "100%" }} />
+                        </Form.Item>
+                      </Col>
 
-              <Form.Item>
+                      <Col span={6}>
+                        <Form.Item
+                          name={[name, "GiaDat"]}
+                          rules={[{ required: true }]}
+                        >
+                          <InputNumber
+                            min={0}
+                            style={{ width: "100%" }}
+                            formatter={(v) =>
+                              v ? Number(v).toLocaleString("vi-VN") : ""
+                            }
+                            parser={(v: any) => v.replace(/\./g, "")}
+                            addonAfter="đ"
+                          />
+                        </Form.Item>
+                      </Col>
+
+                      <Col span={4}>
+                        <Text strong>
+                          {(sl * gia).toLocaleString("vi-VN")} đ
+                        </Text>
+                      </Col>
+
+                      <Col span={2}>
+                        <MinusCircleOutlined
+                          onClick={() => remove(name)}
+                          style={{ color: "red", fontSize: 18 }}
+                        />
+                      </Col>
+                    </Row>
+                  );
+                })}
+
                 <Button
                   type="dashed"
                   block
@@ -157,22 +211,26 @@ export default function ModalTaoDonHang({ visible, onOk, onCancel }) {
                 >
                   Thêm sản phẩm
                 </Button>
-              </Form.Item>
-            </>
-          )}
-        </Form.List>
+              </>
+            )}
+          </Form.List>
+        </Card>
 
         <Divider />
 
-        <Form.Item label="Tạm tính">
-          <InputNumber
-            value={tamTinh}
-            readOnly
-            style={{ width: "100%" }}
-            formatter={(v) => (v ? Number(v).toLocaleString("vi-VN") : "0")}
-            addonAfter="đ"
-          />
-        </Form.Item>
+        {/* ================= TỔNG TIỀN ================= */}
+        <Card size="small">
+          <Row justify="end">
+            <Col>
+              <Statistic
+                title="Tạm tính"
+                value={tamTinh}
+                suffix="đ"
+                valueStyle={{ color: "#cf1322" }}
+              />
+            </Col>
+          </Row>
+        </Card>
       </Form>
     </Modal>
   );

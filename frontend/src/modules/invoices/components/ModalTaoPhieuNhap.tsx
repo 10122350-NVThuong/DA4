@@ -1,23 +1,42 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Modal, InputNumber, Select, Space, Button, Divider, Tag } from "antd";
-import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
+import {
+  Modal,
+  InputNumber,
+  Select,
+  Button,
+  Divider,
+  Tag,
+  Descriptions,
+  Table,
+  Typography,
+} from "antd";
+import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 
 import { productApi } from "@/modules/products/api/products-api";
 import { suppliersApi } from "../../suppliers/api/suppliers-api";
 import { createInvoice, updateInvoice } from "../api/invoices-api";
 import { useNotify } from "@/components/notification/NotifyProvider";
-
+import type { ColumnsType } from "antd/es/table";
 import type { IInvoice, IInvoiceForm } from "../types";
-import { TRANG_THAI_MAP } from "../utils/status";
 
-interface Props {
-  visible: boolean;
-  mode: "create" | "update";
-  initialData?: IInvoice;
-  onOk: () => void;
-  onCancel: () => void;
-}
+const { Title } = Typography;
+
+const InvoiceStatus = {
+  "Chờ duyệt": "Cho_duyet",
+  "Đã duyệt": "Da_duyet",
+  "Đã nhập kho": "Da_nhap_kho",
+  Hủy: "Huy",
+} as const;
+
+type InvoiceStatusType = (typeof InvoiceStatus)[keyof typeof InvoiceStatus];
+
+const STATUS_COLOR: Record<InvoiceStatusType, string> = {
+  Cho_duyet: "orange",
+  Da_duyet: "blue",
+  Da_nhap_kho: "green",
+  Huy: "red",
+};
 
 export default function ModalDonHang({
   visible,
@@ -25,7 +44,13 @@ export default function ModalDonHang({
   initialData,
   onOk,
   onCancel,
-}: Props) {
+}: {
+  visible: boolean;
+  mode: "create" | "update";
+  initialData?: IInvoice;
+  onOk: () => void;
+  onCancel: () => void;
+}) {
   const notify = useNotify();
   const isUpdate = mode === "update";
 
@@ -36,13 +61,10 @@ export default function ModalDonHang({
     control,
     handleSubmit,
     reset,
-    watch,
     formState: { isSubmitting },
   } = useForm<IInvoiceForm>({
     defaultValues: {
-      IdNhaCungCap: undefined,
-      TrangThai: TRANG_THAI_MAP.Cho_duyet,
-      NgayNhap: new Date(),
+      TrangThai: InvoiceStatus["Chờ duyệt"],
       tbl_chitietphieunhap: [],
     },
   });
@@ -65,44 +87,134 @@ export default function ModalDonHang({
       });
     } else {
       reset({
-        TrangThai: TRANG_THAI_MAP.Cho_duyet,
+        TrangThai: InvoiceStatus["Chờ duyệt"],
         tbl_chitietphieunhap: [],
       });
     }
   }, [visible, isUpdate, initialData, reset]);
 
-  const details = watch("tbl_chitietphieunhap");
+  const details = useWatch({
+    control,
+    name: "tbl_chitietphieunhap",
+    defaultValue: [],
+  });
 
-  const total = useMemo(() => {
-    return details.reduce(
-      (sum, item) => sum + (item.SoLuongNhap || 0) * (item.GiaCa || 0),
-      0
-    );
-  }, [details]);
+  const supplierId = useWatch({ control, name: "IdNhaCungCap" });
+  const trangThai = useWatch({ control, name: "TrangThai" });
 
-  const onSubmit = async (values: IInvoice) => {
-    if (values.tbl_chitietphieunhap.length === 0) {
+  const selectedSupplier = useMemo(
+    () => suppliers.find((s) => s.IdNhaCungCap === supplierId),
+    [supplierId, suppliers]
+  );
+
+  const total = useMemo(
+    () =>
+      details.reduce(
+        (sum, i) => sum + Number(i?.SoLuongNhap || 0) * Number(i?.GiaCa || 0),
+        0
+      ),
+    [details]
+  );
+
+  const isReadonly = isUpdate && trangThai !== "Cho_duyet";
+
+  const columns: ColumnsType<any> = [
+    {
+      title: "Sản phẩm",
+      render: (_, __, index) => (
+        <Controller
+          name={`tbl_chitietphieunhap.${index}.IdSanPham`}
+          control={control}
+          rules={{ required: true }}
+          render={({ field }) => (
+            <Select
+              {...field}
+              style={{ width: "100%" }}
+              options={products.map((p) => ({
+                value: p.IdSanPham,
+                label: p.TenSanPham,
+              }))}
+              disabled={isReadonly}
+            />
+          )}
+        />
+      ),
+    },
+    {
+      title: "SL",
+      width: 120,
+      render: (_, __, index) => (
+        <Controller
+          name={`tbl_chitietphieunhap.${index}.SoLuongNhap`}
+          control={control}
+          render={({ field }) => (
+            <InputNumber min={1} {...field} disabled={isReadonly} />
+          )}
+        />
+      ),
+    },
+    {
+      title: "Giá",
+      width: 160,
+      render: (_, __, index) => (
+        <Controller
+          name={`tbl_chitietphieunhap.${index}.GiaCa`}
+          control={control}
+          render={({ field }) => (
+            <InputNumber
+              {...field}
+              addonAfter="đ"
+              min={0}
+              disabled={isReadonly}
+            />
+          )}
+        />
+      ),
+    },
+    {
+      title: "Thành tiền",
+      width: 160,
+      render: (_, r, index) =>
+        (
+          Number(details[index]?.SoLuongNhap || 0) *
+          Number(details[index]?.GiaCa || 0)
+        ).toLocaleString("vi-VN") + " đ",
+    },
+    {
+      width: 60,
+      render: (_, __, index) =>
+        !isUpdate && (
+          <Button
+            danger
+            type="text"
+            icon={<DeleteOutlined />}
+            onClick={() => remove(index)}
+          />
+        ),
+    },
+  ];
+
+  const onSubmit = async (values: IInvoiceForm) => {
+    if (!values.tbl_chitietphieunhap?.length) {
       notify({ type: "error", message: "Phải có ít nhất 1 sản phẩm" });
       return;
     }
 
+    const payload = {
+      IdNhaCungCap: values.IdNhaCungCap,
+      TrangThai: values.TrangThai,
+      TongTien: total,
+      tbl_chitietphieunhap: values.tbl_chitietphieunhap,
+    };
+
     try {
-      if (isUpdate) {
-        if (!values.IdPhieuNhap) return;
-        const { IdPhieuNhap, ...payload } = values;
-        await updateInvoice(IdPhieuNhap, {
-          ...payload,
-          TongTien: total,
-        });
-        notify({ type: "success", message: "Cập nhật phiếu nhập thành công" });
+      if (isUpdate && initialData?.IdPhieuNhap) {
+        await updateInvoice(initialData.IdPhieuNhap, payload);
+        notify({ type: "success", message: "Cập nhật thành công" });
       } else {
-        await createInvoice({
-          ...values,
-          TongTien: total,
-        });
+        await createInvoice(payload);
         notify({ type: "success", message: "Tạo phiếu nhập thành công" });
       }
-
       onOk();
     } catch (err: any) {
       notify({
@@ -115,89 +227,92 @@ export default function ModalDonHang({
   return (
     <Modal
       open={visible}
-      confirmLoading={isSubmitting}
+      width={900}
       onCancel={onCancel}
       onOk={handleSubmit(onSubmit)}
-      width={800}
+      confirmLoading={isSubmitting}
       destroyOnClose
       title={
         isUpdate ? (
           <>
-            Cập nhật phiếu nhập{" "}
-            <Tag color="blue">#{initialData?.IdPhieuNhap}</Tag>
+            Phiếu nhập <Tag color="blue">#{initialData?.IdPhieuNhap}</Tag>
           </>
         ) : (
           "Tạo phiếu nhập"
         )
       }
     >
-      <Controller
-        name="IdNhaCungCap"
-        control={control}
-        rules={{ required: true }}
-        render={({ field }) => (
-          <Select
-            {...field}
-            placeholder="Nhà cung cấp"
-            options={suppliers.map((s) => ({
-              value: s.IdNhaCungCap,
-              label: s.TenNhaCungCap,
-            }))}
-          />
-        )}
-      />
+      {!isUpdate && (
+        <Controller
+          name="IdNhaCungCap"
+          control={control}
+          render={({ field }) => (
+            <Select
+              {...field}
+              placeholder="Chọn nhà cung cấp"
+              options={suppliers.map((s) => ({
+                value: s.IdNhaCungCap,
+                label: s.TenNhaCungCap,
+              }))}
+            />
+          )}
+        />
+      )}
 
-      <Divider />
+      {selectedSupplier && (
+        <>
+          <Divider />
+          <Descriptions bordered size="small" column={2}>
+            <Descriptions.Item label="Nhà cung cấp">
+              {selectedSupplier.TenNhaCungCap}
+            </Descriptions.Item>
+            <Descriptions.Item label="SĐT">
+              {selectedSupplier.SoDienThoai || "N/A"}
+            </Descriptions.Item>
+          </Descriptions>
+        </>
+      )}
 
-      {fields.map((field, index) => (
-        <Space key={field.id} align="baseline">
+      {isUpdate && (
+        <>
+          <Divider />
           <Controller
-            name={`tbl_chitietphieunhap.${index}.IdSanPham`}
+            name="TrangThai"
             control={control}
-            rules={{ required: true }}
             render={({ field }) => (
               <Select
                 {...field}
-                style={{ width: 220 }}
-                options={products.map((p) => ({
-                  value: p.IdSanPham,
-                  label: p.TenSanPham,
+                style={{ width: 200 }}
+                options={Object.values(InvoiceStatus).map((s) => ({
+                  value: s,
+                  label: <Tag color={STATUS_COLOR[s]}>{s}</Tag>,
                 }))}
+                disabled={isReadonly}
               />
             )}
           />
+        </>
+      )}
 
-          <Controller
-            name={`tbl_chitietphieunhap.${index}.SoLuongNhap`}
-            control={control}
-            rules={{ required: true }}
-            render={({ field }) => <InputNumber {...field} min={1} />}
-          />
+      <Divider />
 
-          <Controller
-            name={`tbl_chitietphieunhap.${index}.GiaCa`}
-            control={control}
-            rules={{ required: true }}
-            render={({ field }) => (
-              <InputNumber {...field} min={0} addonAfter="đ" />
-            )}
-          />
-
-          {!isUpdate && (
-            <MinusCircleOutlined
-              onClick={() => remove(index)}
-              style={{ color: "red" }}
-            />
-          )}
-        </Space>
-      ))}
+      <Table
+        dataSource={fields}
+        columns={columns}
+        pagination={false}
+        rowKey="id"
+        size="small"
+      />
 
       {!isUpdate && (
         <Button
           block
           type="dashed"
           icon={<PlusOutlined />}
-          onClick={() => append({ SoLuongNhap: 1, GiaCa: 0 })}
+          onClick={() =>
+            append({ IdSanPham: undefined, SoLuongNhap: 1, GiaCa: 0 })
+          }
+          style={{ marginTop: 12 }}
         >
           Thêm sản phẩm
         </Button>
@@ -205,13 +320,12 @@ export default function ModalDonHang({
 
       <Divider />
 
-      <InputNumber
-        value={total}
-        readOnly
-        style={{ width: "100%" }}
-        formatter={(v) => Number(v || 0).toLocaleString("vi-VN")}
-        addonAfter="đ"
-      />
+      <Title level={4} style={{ textAlign: "right" }}>
+        Tổng tiền:{" "}
+        <span style={{ color: "#1677ff" }}>
+          {total.toLocaleString("vi-VN")} đ
+        </span>
+      </Title>
     </Modal>
   );
 }

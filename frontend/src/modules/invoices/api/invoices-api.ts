@@ -10,7 +10,7 @@ export const createInvoice = (data: any) =>
   apiClient.post(URL_API_GET_INVOICES, data);
 
 export const updateInvoice = (id: number, data: any) =>
-  apiClient.patch(`${URL_API_GET_INVOICES}/${id}`, data);
+  apiClient.put(`${URL_API_GET_INVOICES}/${id}`, data);
 
 export const deleteInvoice = (id: number) =>
   apiClient.delete(`${URL_API_GET_INVOICES}/${id}`);

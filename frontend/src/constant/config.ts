@@ -7,3 +7,4 @@ export const URL_API_GET_DISCOUNTS = "/giamgia";
 export const URL_API_GET_SUPPLIERS = "/nhacungcap";
 export const URL_API_GET_INVOICES = "/phieunhap";
 export const URL_API_GET_ORDERS = "/donhang";
+export const URL_API_GET_STATISTICS = "/thongke";

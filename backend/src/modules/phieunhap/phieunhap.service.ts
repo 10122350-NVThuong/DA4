@@ -43,24 +43,20 @@ export class PhieuNhapService {
   }
 
   async create(dto: CreatePhieunhapDto) {
-    if (!dto.ChiTiet || dto.ChiTiet.length === 0) {
+    if (!dto.tbl_chitietphieunhap || dto.tbl_chitietphieunhap.length === 0) {
       throw new BadRequestException('Phiếu nhập phải có chi tiết');
     }
-
-    const tongTien = dto.ChiTiet.reduce((sum, item) => {
-      return sum + (item.GiaCa ?? 0) * (item.SoLuongNhap ?? 0);
-    }, 0);
 
     return this.prisma.tbl_phieunhap.create({
       data: {
         IdNhaCungCap: dto.IdNhaCungCap,
         NguoiNhap: dto.NguoiNhap,
         NgayNhap: dto.NgayNhap ?? new Date(),
-        TongTien: tongTien,
-        TrangThai: dto.TrangThai ?? tbl_phieunhap_TrangThai.Cho_duyet,
+        TongTien: dto.TongTien,
+        TrangThai: dto.TrangThai,
 
         tbl_chitietphieunhap: {
-          create: dto.ChiTiet.map((item) => ({
+          create: dto.tbl_chitietphieunhap.map((item) => ({
             IdSanPham: item.IdSanPham,
             GiaCa: item.GiaCa,
             SoLuongNhap: item.SoLuongNhap,
@@ -88,6 +84,9 @@ export class PhieuNhapService {
       );
     }
 
+    if (dto.TrangThai === tbl_phieunhap_TrangThai.Da_duyet) {
+      await this.duyetPhieuNhap(IdPhieuNhap);
+    }
     return this.prisma.tbl_phieunhap.update({
       where: { IdPhieuNhap },
       data: {
@@ -139,7 +138,6 @@ export class PhieuNhapService {
         const soLuongNhap = item.SoLuongNhap ?? 0;
 
         if (sanpham.SoLuongTon === null) {
-          // Nếu muốn cho phép null → set về 0 trước
           await tx.tbl_sanpham.update({
             where: { IdSanPham: item.IdSanPham },
             data: {
