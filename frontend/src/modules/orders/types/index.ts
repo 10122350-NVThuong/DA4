@@ -17,6 +17,7 @@ export interface IOrder {
   TrangThai: string;
   TrangThaiThanhToan: string;
   LoaiDonHang: string;
+  NgayDat: string;
   TamTinh?: number;
   TongTien: number;
   tbl_chitietdonhang: IOrderDetail[];

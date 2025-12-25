@@ -1,12 +1,27 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
+export interface UserRoleObject {
+  role?: string;
+  role_name?: string;
+  name?: string;
+}
+
+export interface AuthUser {
+  id: number;
+  HoTen: string;
+  Email: string;
+  DiaChi?: string;
+  SoDienThoai?: string;
+  roles: string | string[] | UserRoleObject[];
+}
+
 interface AuthState {
   accessToken: string | null;
-  user: any | null;
+  user: AuthUser | null;
   isAuthenticated: boolean;
 
-  login: (token: string, user: any) => void;
+  login: (token: string, user: AuthUser) => void;
   logout: () => void;
 
   hasRole: (role: string) => boolean;
@@ -23,7 +38,7 @@ export const useAuthStore = create<AuthState>()(
       login: (token, user) => {
         set({
           accessToken: token,
-          user: user,
+          user,
           isAuthenticated: true,
         });
       },
@@ -34,33 +49,40 @@ export const useAuthStore = create<AuthState>()(
           user: null,
           isAuthenticated: false,
         });
-        localStorage.removeItem("auth-storage-da4");
-        window.location.href = "/login";
       },
 
       hasRole: (role) => {
-        const { hasAnyRole } = get();
-        return hasAnyRole([role]);
+        return get().hasAnyRole([role]);
       },
 
       hasAnyRole: (allowedRoles) => {
         const { user } = get();
+        if (!user?.roles) return false;
 
-        if (!user || !user.roles) return false;
+        let roleList: string[] = [];
 
-        const userRolesList = Array.isArray(user.roles) ? user.roles : [];
+        if (typeof user.roles === "string") {
+          roleList = [user.roles];
+        } else if (Array.isArray(user.roles)) {
+          roleList = user.roles
+            .map((r) => {
+              if (typeof r === "string") return r;
+              return r.role || r.role_name || r.name || "";
+            })
+            .filter(Boolean);
+        }
 
-        const userRoleStrings = userRolesList.map((r: any) => {
-          if (typeof r === "string") return r;
-          return r?.role || r?.role_name || r?.name || "";
-        });
-
-        return userRoleStrings.some((role) => allowedRoles.includes(role));
+        return roleList.some((r) => allowedRoles.includes(r));
       },
     }),
     {
       name: "auth-storage-da4",
       storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        accessToken: state.accessToken,
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+      }),
     }
   )
 );

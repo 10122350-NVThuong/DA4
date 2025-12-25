@@ -52,9 +52,9 @@ export class DonHangService {
   }
 
   async create(data: CreateDonhangDto) {
-    const { ChiTiet, ...donhangData } = data;
+    const { tbl_chitietdonhang, ...donhangData } = data;
 
-    if (!ChiTiet || ChiTiet.length === 0) {
+    if (!tbl_chitietdonhang || tbl_chitietdonhang.length === 0) {
       throw new BadRequestException('Đơn hàng phải có ít nhất 1 sản phẩm');
     }
 
@@ -63,7 +63,7 @@ export class DonHangService {
         data: donhangData,
       });
 
-      for (const item of ChiTiet) {
+      for (const item of tbl_chitietdonhang) {
         const sanpham = await tx.tbl_sanpham.findUnique({
           where: { IdSanPham: item.IdSanPham },
         });

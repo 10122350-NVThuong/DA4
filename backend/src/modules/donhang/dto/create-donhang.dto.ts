@@ -42,5 +42,5 @@ export class CreateDonhangDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateChitietdonhangDto)
-  ChiTiet: CreateChitietdonhangDto[];
+  tbl_chitietdonhang: CreateChitietdonhangDto[];
 }

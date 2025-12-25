@@ -11,28 +11,41 @@ import {
   Space,
   message,
   Divider,
+  Typography,
 } from "antd";
+import {
+  DollarCircleOutlined,
+  ShoppingCartOutlined,
+  DashboardOutlined,
+  ArrowUpOutlined,
+  ArrowDownOutlined,
+} from "@ant-design/icons";
 import { Column } from "@ant-design/plots";
 import dayjs, { Dayjs } from "dayjs";
 import { dashboardApi } from "../api/dashboard.api";
 
 const { RangePicker } = DatePicker;
+const { Text } = Typography;
+
+// Mapper cho trạng thái hóa đơn
+const STATUS_MAP: Record<string, { label: string; color: string }> = {
+  Cho_duyet: { label: "Chờ duyệt", color: "default" },
+  Dang_xu_ly: { label: "Đang xử lý", color: "blue" },
+  Dang_giao_hang: { label: "Đang giao", color: "orange" },
+  Da_hoan_thanh: { label: "Thành công", color: "green" },
+  Huy: { label: "Đã hủy", color: "red" },
+};
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(false);
-
-  // KPI
   const [salesRevenue, setSalesRevenue] = useState(0);
   const [purchaseRevenue, setPurchaseRevenue] = useState(0);
   const [profit, setProfit] = useState(0);
-
-  // Data
   const [topProducts, setTopProducts] = useState<any[]>([]);
   const [salesStatus, setSalesStatus] = useState<Record<string, number>>({});
   const [purchaseStatus, setPurchaseStatus] = useState<Record<string, number>>(
     {}
   );
-
   const [dailySalesRevenue, setDailySalesRevenue] = useState<
     Record<number, number>
   >({});
@@ -74,15 +87,12 @@ export default function Dashboard() {
       setSalesRevenue(salesRes.totalRevenue ?? 0);
       setPurchaseRevenue(purchaseRes.totalRevenue ?? 0);
       setProfit(profitRes.profit ?? 0);
-
       setTopProducts(topProductsRes ?? []);
       setSalesStatus(salesStatusRes ?? {});
       setPurchaseStatus(purchaseStatusRes ?? {});
-
       setDailySalesRevenue(dailySalesRes ?? {});
       setDailyPurchaseRevenue(dailyPurchaseRes ?? {});
     } catch (err) {
-      console.error(err);
       message.error("Không thể tải dữ liệu thống kê");
     } finally {
       setLoading(false);
@@ -93,118 +103,195 @@ export default function Dashboard() {
     fetchData();
   }, [from, to]);
 
+  // Format tiền tệ Việt Nam
+  const formatCurrency = (val: number) =>
+    new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(val);
+
   const topProductsColumns = [
+    {
+      title: "Hạng",
+      render: (_: any, __: any, index: number) => (
+        <Tag color={index < 3 ? "gold" : "default"}>{index + 1}</Tag>
+      ),
+      width: 60,
+    },
     { title: "Tên sản phẩm", dataIndex: "TenSanPham", key: "TenSanPham" },
-    { title: "Số lượng bán", dataIndex: "SoLuongDat", key: "SoLuongDat" },
+    {
+      title: "Số lượng",
+      dataIndex: "SoLuongDat",
+      key: "SoLuongDat",
+      render: (val: number) => (
+        <Text strong color="blue">
+          {val.toLocaleString()}
+        </Text>
+      ),
+    },
   ];
 
-  const salesChartData = Object.entries(dailySalesRevenue).map(
-    ([day, revenue]) => ({
-      day: Number(day),
-      revenue,
-      type: "Bán",
-    })
-  );
+  // Dữ liệu biểu đồ gộp
+  const combinedChartData = useMemo(() => {
+    const data: any[] = [];
+    Object.entries(dailySalesRevenue).forEach(([day, rev]) =>
+      data.push({ day: `Ngày ${day}`, value: rev, type: "Doanh thu bán" })
+    );
+    Object.entries(dailyPurchaseRevenue).forEach(([day, rev]) =>
+      data.push({ day: `Ngày ${day}`, value: rev, type: "Chi phí nhập" })
+    );
+    return data;
+  }, [dailySalesRevenue, dailyPurchaseRevenue]);
 
-  const purchaseChartData = Object.entries(dailyPurchaseRevenue).map(
-    ([day, revenue]) => ({
-      day: Number(day),
-      revenue,
-      type: "Nhập",
-    })
-  );
-
-  const chartConfig = (data: any[]) => ({
-    data,
+  const chartConfig = {
+    data: combinedChartData,
+    isGroup: true,
     xField: "day",
-    yField: "revenue",
+    yField: "value",
     seriesField: "type",
-    height: 300,
-    meta: {
-      day: { alias: "Ngày" },
-      revenue: { alias: "Số tiền" },
-    },
-  });
+    color: ["#1890ff", "#ff4d4f"],
+    columnStyle: { radius: [4, 4, 0, 0] },
+    label: { position: "top", layout: [{ type: "interval-hide-overlap" }] },
+    legend: { position: "top-left" as const },
+  };
 
   return (
-    <Spin spinning={loading}>
-      <Card style={{ marginBottom: 16 }}>
-        <Space>
-          <span>Khoảng thời gian:</span>
+    <div style={{ padding: "20px", background: "#f0f2f5", minHeight: "100vh" }}>
+      <Typography.Title level={3}>
+        <DashboardOutlined /> Tổng quan hệ thống - {dayjs().format("YYYY")}
+      </Typography.Title>
+
+      <Card style={{ marginBottom: 24, borderRadius: "12px" }} bordered={false}>
+        <Space size="large">
+          <Text strong>Bộ lọc thời gian:</Text>
           <RangePicker
             value={range}
             allowClear={false}
             onChange={(v) => v && setRange(v as [Dayjs, Dayjs])}
+            style={{ borderRadius: "8px" }}
           />
         </Space>
       </Card>
 
-      <Row gutter={16}>
-        <Col span={8}>
-          <Card>
-            <Statistic title="Doanh thu bán" value={salesRevenue} suffix="đ" />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card>
+      {/* KPI Section */}
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={8}>
+          <Card bordered={false} style={{ borderRadius: "12px" }}>
             <Statistic
-              title="Chi phí nhập"
-              value={purchaseRevenue}
-              suffix="đ"
+              title="Doanh thu bán"
+              value={salesRevenue}
+              formatter={(val) => formatCurrency(val as number)}
+              valueStyle={{ color: "#3f8600" }}
+              prefix={<ShoppingCartOutlined />}
             />
           </Card>
         </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic title="Lợi nhuận" value={profit} suffix="đ" />
+        <Col xs={24} sm={8}>
+          <Card bordered={false} style={{ borderRadius: "12px" }}>
+            <Statistic
+              title="Chi phí nhập"
+              value={purchaseRevenue}
+              formatter={(val) => formatCurrency(val as number)}
+              valueStyle={{ color: "#cf1322" }}
+              prefix={<DollarCircleOutlined />}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={8}>
+          <Card
+            bordered={false}
+            style={{
+              borderRadius: "12px",
+              background: profit >= 0 ? "#f6ffed" : "#fff1f0",
+            }}
+          >
+            <Statistic
+              title="Lợi nhuận"
+              value={profit}
+              formatter={(val) => formatCurrency(val as number)}
+              valueStyle={{ color: profit >= 0 ? "#3f8600" : "#cf1322" }}
+              prefix={profit >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
+            />
           </Card>
         </Col>
       </Row>
 
-      <Row gutter={16} style={{ marginTop: 24 }}>
-        <Col span={12}>
-          <Card title="Top sản phẩm bán chạy">
+      <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
+        {/* Top Products */}
+        <Col xs={24} lg={14}>
+          <Card
+            title="🏆 Top sản phẩm bán chạy"
+            bordered={false}
+            style={{ borderRadius: "12px" }}
+          >
             <Table
               dataSource={topProducts}
               columns={topProductsColumns}
               rowKey="TenSanPham"
-              pagination={false}
+              pagination={{ pageSize: 5 }}
+              size="middle"
             />
           </Card>
         </Col>
 
-        <Col span={12}>
-          <Card title="Trạng thái hóa đơn">
-            <Divider>Hóa đơn bán</Divider>
-            {Object.entries(salesStatus).map(([k, v]) => (
-              <Tag color="blue" key={k}>
-                {k}: {v}
-              </Tag>
-            ))}
+        {/* Status Section */}
+        <Col xs={24} lg={10}>
+          <Card
+            title="📊 Trạng thái giao dịch"
+            bordered={false}
+            style={{ borderRadius: "12px" }}
+          >
+            <Divider plain>Hóa đơn bán</Divider>
+            <div style={{ marginBottom: 16 }}>
+              {Object.entries(salesStatus).map(([k, v]) => (
+                <Tag
+                  color={STATUS_MAP[k]?.color || "blue"}
+                  key={k}
+                  style={{
+                    marginBottom: 8,
+                    padding: "4px 10px",
+                    fontSize: "14px",
+                  }}
+                >
+                  {STATUS_MAP[k]?.label || k}: <b>{v}</b>
+                </Tag>
+              ))}
+            </div>
 
-            <Divider>Hóa đơn nhập</Divider>
-            {Object.entries(purchaseStatus).map(([k, v]) => (
-              <Tag color="green" key={k}>
-                {k}: {v}
-              </Tag>
-            ))}
+            <Divider plain>Hóa đơn nhập</Divider>
+            <div>
+              {Object.entries(purchaseStatus).map(([k, v]) => (
+                <Tag
+                  color={STATUS_MAP[k]?.color || "green"}
+                  key={k}
+                  style={{
+                    marginBottom: 8,
+                    padding: "4px 10px",
+                    fontSize: "14px",
+                  }}
+                >
+                  {STATUS_MAP[k]?.label || k}: <b>{v}</b>
+                </Tag>
+              ))}
+            </div>
           </Card>
         </Col>
       </Row>
 
-      <Row gutter={16} style={{ marginTop: 24 }}>
-        <Col span={12}>
-          <Card title="Doanh thu bán theo ngày">
-            <Column {...chartConfig(salesChartData)} />
-          </Card>
-        </Col>
-
-        <Col span={12}>
-          <Card title="Chi phí nhập theo ngày">
-            <Column {...chartConfig(purchaseChartData)} />
+      {/* Chart Section */}
+      <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
+        <Col span={24}>
+          <Card
+            title="📈 Biểu đồ so sánh thu chi theo ngày"
+            bordered={false}
+            style={{ borderRadius: "12px" }}
+          >
+            <Spin spinning={loading}>
+              <Column {...chartConfig} />
+            </Spin>
           </Card>
         </Col>
       </Row>
-    </Spin>
+    </div>
   );
 }
