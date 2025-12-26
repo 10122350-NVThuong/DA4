@@ -5,17 +5,20 @@ import {
   tbl_donhang_TrangThaiThanhToan,
   tbl_phieunhap_TrangThai,
 } from '@prisma/client';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class StatisticsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getPurchaseRevenueAndInvoices(from: string, to: string) {
+    const startDate = dayjs(from).startOf('day').toDate();
+    const endDate = dayjs(to).endOf('day').toDate();
     const invoices = await this.prisma.tbl_phieunhap.findMany({
       where: {
         NgayNhap: {
-          gte: new Date(from),
-          lte: new Date(to),
+          gte: startDate,
+          lte: endDate,
         },
       },
       select: {
@@ -31,9 +34,11 @@ export class StatisticsService {
   }
 
   async getDailyPurchaseRevenue(from: string, to: string) {
+    const startDate = dayjs(from).startOf('day').toDate();
+    const endDate = dayjs(to).endOf('day').toDate();
     const invoices = await this.prisma.tbl_phieunhap.findMany({
       where: {
-        NgayNhap: { gte: new Date(from), lte: new Date(to) },
+        NgayNhap: { gte: startDate, lte: endDate },
       },
       select: { NgayNhap: true, TongTien: true },
     });
@@ -50,9 +55,11 @@ export class StatisticsService {
   }
 
   async getStatsBySupplier(from: string, to: string) {
+    const startDate = dayjs(from).startOf('day').toDate();
+    const endDate = dayjs(to).endOf('day').toDate();
     const invoices = await this.prisma.tbl_phieunhap.findMany({
       where: {
-        NgayNhap: { gte: new Date(from), lte: new Date(to) },
+        NgayNhap: { gte: startDate, lte: endDate },
       },
       select: {
         IdNhaCungCap: true,
@@ -77,9 +84,11 @@ export class StatisticsService {
   }
 
   async getPurchaseStatsByStatus(from: string, to: string) {
+    const startDate = dayjs(from).startOf('day').toDate();
+    const endDate = dayjs(to).endOf('day').toDate();
     const invoices = await this.prisma.tbl_phieunhap.findMany({
       where: {
-        NgayNhap: { gte: new Date(from), lte: new Date(to) },
+        NgayNhap: { gte: startDate, lte: endDate },
       },
       select: { TrangThai: true },
     });
@@ -95,9 +104,11 @@ export class StatisticsService {
   }
 
   async getSalesRevenueAndOrders(from: string, to: string) {
+    const startDate = dayjs(from).startOf('day').toDate();
+    const endDate = dayjs(to).endOf('day').toDate();
     const invoices = await this.prisma.tbl_donhang.findMany({
       where: {
-        NgayDat: { gte: new Date(from), lte: new Date(to) },
+        NgayDat: { gte: startDate, lte: endDate },
         TrangThaiThanhToan: tbl_donhang_TrangThaiThanhToan.Da_thanh_toan,
       },
       select: {
@@ -113,9 +124,11 @@ export class StatisticsService {
   }
 
   async getDailyOrderRevenue(from: string, to: string) {
+    const startDate = dayjs(from).startOf('day').toDate();
+    const endDate = dayjs(to).endOf('day').toDate();
     const invoices = await this.prisma.tbl_donhang.findMany({
       where: {
-        NgayDat: { gte: new Date(from), lte: new Date(to) },
+        NgayDat: { gte: startDate, lte: endDate },
         TrangThaiThanhToan: tbl_donhang_TrangThaiThanhToan.Da_thanh_toan,
       },
       select: { NgayDat: true, TongTien: true },
@@ -133,9 +146,11 @@ export class StatisticsService {
   }
 
   async getSalesByStatus(from: string, to: string) {
+    const startDate = dayjs(from).startOf('day').toDate();
+    const endDate = dayjs(to).endOf('day').toDate();
     const invoices = await this.prisma.tbl_donhang.findMany({
       where: {
-        NgayDat: { gte: new Date(from), lte: new Date(to) },
+        NgayDat: { gte: startDate, lte: endDate },
       },
       select: { TrangThai: true },
     });
@@ -151,10 +166,12 @@ export class StatisticsService {
   }
 
   async getTopProducts(from: string, to: string, limit = 10) {
+    const startDate = dayjs(from).startOf('day').toDate();
+    const endDate = dayjs(to).endOf('day').toDate();
     const items = await this.prisma.tbl_chitietdonhang.findMany({
       where: {
         tbl_donhang: {
-          NgayDat: { gte: new Date(from), lte: new Date(to) },
+          NgayDat: { gte: startDate, lte: endDate },
         },
       },
       include: {
@@ -187,6 +204,8 @@ export class StatisticsService {
   }
 
   async getProfit(from: string, to: string) {
+    const startDate = dayjs(from).startOf('day').toDate();
+    const endDate = dayjs(to).endOf('day').toDate();
     const sales = await this.getSalesRevenueAndOrders(from, to);
     const purchase = await this.getPurchaseRevenueAndInvoices(from, to);
 

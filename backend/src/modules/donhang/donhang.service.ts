@@ -125,12 +125,13 @@ export class DonHangService {
       throw new NotFoundException('Đơn hàng không tồn tại');
     }
 
-    const { TrangThai } = data;
+    const { TrangThai, TrangThaiThanhToan } = data;
 
     return this.prisma.tbl_donhang.update({
       where: { IdDonHang },
       data: {
         TrangThai,
+        TrangThaiThanhToan,
       },
     });
   }

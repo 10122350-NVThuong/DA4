@@ -272,7 +272,6 @@ export default function ModalChiTietDonHang({
         </Form>
       </Card>
 
-      {/* 3. DANH SÁCH SẢN PHẨM */}
       <Divider style={{ marginTop: 0 }}>
         <Space>
           <InfoCircleOutlined /> <Text type="secondary">Sản phẩm đã đặt</Text>
