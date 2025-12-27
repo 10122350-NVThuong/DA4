@@ -20,6 +20,7 @@ export class StatisticsService {
           gte: startDate,
           lte: endDate,
         },
+        TrangThai: tbl_phieunhap_TrangThai.Da_nhap_kho,
       },
       select: {
         IdPhieuNhap: true,
@@ -39,6 +40,7 @@ export class StatisticsService {
     const invoices = await this.prisma.tbl_phieunhap.findMany({
       where: {
         NgayNhap: { gte: startDate, lte: endDate },
+        TrangThai: tbl_phieunhap_TrangThai.Da_nhap_kho,
       },
       select: { NgayNhap: true, TongTien: true },
     });
