@@ -140,7 +140,7 @@ const ProductModal: React.FC<Props> = ({
                 { required: true, message: "Vui lòng nhập tên sản phẩm" },
               ]}
             >
-              <Input placeholder="Ví dụ: iPhone 15 Pro Max" size="large" />
+              <Input placeholder="Ví dụ: Bút bi Hồng Hà" size="large" />
             </Form.Item>
 
             <Row gutter={10}>

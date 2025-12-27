@@ -8,7 +8,7 @@ import { useNotify } from "../../../components/notification/NotifyProvider";
 import { useAuthStore } from "../store/auth.store";
 import { LAT_BASE_ROLES } from "@/constant/roles";
 
-import logo from "../../../assets/react.svg";
+import logo from "../../../assets/image.png";
 
 const { Title, Text } = Typography;
 const { Content } = Layout;

@@ -81,11 +81,11 @@ const SupplierModal: React.FC<Props> = ({
         form={form}
         layout="vertical"
         style={{ marginTop: 20 }}
-        requiredMark="optional" // Ẩn dấu * đỏ để giao diện sạch hơn, dùng label strong thay thế
+        requiredMark="optional"
       >
         <Divider style={{ marginTop: 0 }}>
           <Text type="secondary" style={{ fontSize: 12 }}>
-            THÔNG TIN ĐỐI TÁC
+            THÔNG TIN NHÀ CUNG CẤP
           </Text>
         </Divider>
 
@@ -98,7 +98,7 @@ const SupplierModal: React.FC<Props> = ({
         >
           <Input
             prefix={<ShopOutlined style={{ color: "#bfbfbf" }} />}
-            placeholder="Ví dụ: Công ty TNHH Thương mại ABC"
+            placeholder="Ví dụ: Văn phòng phẩm Hồng Hà"
             size="large"
           />
         </Form.Item>
@@ -140,7 +140,7 @@ const SupplierModal: React.FC<Props> = ({
 
         <Divider>
           <Text type="secondary" style={{ fontSize: 12 }}>
-            ĐỊA CHỈ TRỤ SỞ
+            ĐỊA CHỈ NHÀ CUNG CẤP
           </Text>
         </Divider>
 

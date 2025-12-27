@@ -17,6 +17,7 @@ import { useNavigate, useLocation, Outlet, Navigate } from "react-router-dom";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
 import AppBreadcrumb from "@/components/common/BreadCrumb";
 import UserAvatar from "../common/UserAvatar";
+import logo from "../../assets/image.png";
 
 const { Header, Content, Sider } = Layout;
 const { Text } = Typography;
@@ -37,10 +38,8 @@ export default function MainLayout() {
     return <Navigate to="/login" replace />;
   }
 
-  // Lấy key hiện tại từ URL (ví dụ: /admin/products -> products)
   const selectedKey = location.pathname.split("/")[2] ?? "";
 
-  // Danh sách Menu phẳng - Không dùng children
   const menuItems: MenuProps["items"] = [
     {
       key: "",
@@ -59,7 +58,6 @@ export default function MainLayout() {
   ];
 
   const handleMenuClick: MenuProps["onClick"] = ({ key }) => {
-    // Điều hướng dựa trên key
     key === "" ? navigate("/admin") : navigate(`/admin/${key}`);
   };
 
@@ -75,34 +73,19 @@ export default function MainLayout() {
           zIndex: 10,
         }}
       >
-        {/* LOGO AREA */}
         <div
           style={{
-            height: 64,
+            background: "#e6f7ff",
+            width: 80,
+            height: 80,
+            borderRadius: "50%",
             display: "flex",
+            justifyContent: "center",
             alignItems: "center",
-            justifyContent: collapsed ? "center" : "flex-start",
-            padding: "0 24px",
-            overflow: "hidden",
-            transition: "all 0.3s",
-            background: "#001529",
+            margin: "0 auto 16px",
           }}
         >
-          <RocketOutlined style={{ fontSize: 26, color: "#1890ff" }} />
-          {!collapsed && (
-            <Text
-              strong
-              style={{
-                color: "#fff",
-                fontSize: 18,
-                marginLeft: 12,
-                whiteSpace: "nowrap",
-                letterSpacing: "1px",
-              }}
-            >
-              LAT ADMIN
-            </Text>
-          )}
+          <img src={logo} alt="Logo" style={{ width: 45 }} />
         </div>
 
         <Menu
@@ -116,7 +99,6 @@ export default function MainLayout() {
       </Sider>
 
       <Layout>
-        {/* HEADER */}
         <Header
           style={{
             background: colorBgContainer,
@@ -137,8 +119,6 @@ export default function MainLayout() {
 
           <UserAvatar fullName={user?.HoTen} />
         </Header>
-
-        {/* MAIN CONTENT */}
         <Content
           style={{
             margin: "24px 16px",
