@@ -35,7 +35,6 @@ import type { IInvoice } from "../types";
 
 const { Title, Text } = Typography;
 
-// Cấu hình màu sắc cho trạng thái phiếu nhập
 const STATUS_COLORS: Record<string, string> = {
   Cho_duyet: "default",
   Dang_nhap_kho: "blue",
@@ -68,7 +67,6 @@ export const Invoice: React.FC = () => {
     fetchAllInvoices();
   }, []);
 
-  // Tìm kiếm phiếu nhập theo tên nhà cung cấp
   const filteredInvoices = useMemo(() => {
     return invoices.filter((item) =>
       item.tbl_nhacungcap?.TenNhaCungCap?.toLowerCase().includes(
@@ -197,7 +195,6 @@ export const Invoice: React.FC = () => {
 
   return (
     <div style={{ padding: "24px", background: "#f0f2f5", minHeight: "100vh" }}>
-      {/* Header Section */}
       <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
         <Col>
           <Title level={3} style={{ margin: 0 }}>
@@ -225,7 +222,6 @@ export const Invoice: React.FC = () => {
         </Col>
       </Row>
 
-      {/* Filter Section */}
       <Card bordered={false} style={{ marginBottom: 16, borderRadius: "12px" }}>
         <Row gutter={16}>
           <Col xs={24} sm={12} md={8}>
@@ -241,7 +237,6 @@ export const Invoice: React.FC = () => {
         </Row>
       </Card>
 
-      {/* Main Table Card */}
       <Card
         bordered={false}
         bodyStyle={{ padding: 0 }}

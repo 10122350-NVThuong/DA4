@@ -281,7 +281,6 @@ export default function ModalDonHang({
       }
     >
       <Row gutter={20} style={{ marginTop: 10 }}>
-        {/* ================= THÔNG TIN CHUNG ================= */}
         <Col span={24}>
           <Card
             size="small"
@@ -367,7 +366,6 @@ export default function ModalDonHang({
           </Card>
         </Col>
 
-        {/* ================= CHI TIẾT HÀNG NHẬP ================= */}
         <Col span={24}>
           <div
             style={{

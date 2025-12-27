@@ -14,7 +14,6 @@ import {
   Card,
   Statistic,
   Avatar,
-  Badge,
   Empty,
   Tooltip,
 } from "antd";
@@ -51,7 +50,6 @@ export default function ModalTaoDonHang({ visible, onOk, onCancel }) {
     form.resetFields();
   }, [visible]);
 
-  // Theo dõi sự thay đổi của danh sách sản phẩm để tính tiền
   const items = Form.useWatch("tbl_chitietdonhang", form) || [];
 
   const totalAmount = useMemo(
@@ -72,8 +70,8 @@ export default function ModalTaoDonHang({ visible, onOk, onCancel }) {
     current[index] = {
       ...current[index],
       GiaDat: product.Gia,
-      SoLuongDat: 1, // Mặc định là 1 khi chọn
-      MaxStock: product.SoLuongTon, // Lưu lại để validate
+      SoLuongDat: 1,
+      MaxStock: product.SoLuongTon,
     };
 
     form.setFieldsValue({ tbl_chitietdonhang: current });
@@ -122,7 +120,6 @@ export default function ModalTaoDonHang({ visible, onOk, onCancel }) {
         initialValues={{ tbl_chitietdonhang: [{}] }}
       >
         <Row gutter={24}>
-          {/* ================= CỘT TRÁI: THÔNG TIN CHUNG ================= */}
           <Col span={16}>
             <Card
               size="small"
