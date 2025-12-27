@@ -258,7 +258,7 @@ export const Invoice: React.FC = () => {
           loading={loading}
           pagination={{
             pageSize: 10,
-            showTotal: (total) => `Tổng cộng ${total} phiếu nhập`,
+            showTotal: (total) => `Tổng cộng ${total}`,
             position: ["bottomCenter"],
           }}
         />

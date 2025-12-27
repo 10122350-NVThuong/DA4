@@ -194,14 +194,13 @@ export const Supplier: React.FC = () => {
 
   return (
     <div style={{ padding: "24px", background: "#f5f7f9", minHeight: "100vh" }}>
-      {/* Header Section */}
       <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
         <Col>
           <Title level={3} style={{ margin: 0 }}>
             Quản lý nhà cung cấp
           </Title>
           <Text type="secondary">
-            Quản lý danh sách đối tác cung ứng hàng hóa cho hệ thống
+            Quản lý danh sách nhà cung cấp cung ứng hàng hóa cho hệ thống
           </Text>
         </Col>
         <Col>
@@ -221,7 +220,6 @@ export const Supplier: React.FC = () => {
         </Col>
       </Row>
 
-      {/* Filter Section */}
       <Card
         bordered={false}
         style={{
@@ -245,7 +243,6 @@ export const Supplier: React.FC = () => {
         </Row>
       </Card>
 
-      {/* Main Table Card */}
       <Card
         bordered={false}
         bodyStyle={{ padding: 0 }}
@@ -262,7 +259,7 @@ export const Supplier: React.FC = () => {
           dataSource={filteredSuppliers}
           pagination={{
             pageSize: 8,
-            showTotal: (total) => `Tổng cộng ${total} nhà cung cấp`,
+            showTotal: (total) => `Tổng cộng ${total}`,
             position: ["bottomCenter"],
           }}
         />
