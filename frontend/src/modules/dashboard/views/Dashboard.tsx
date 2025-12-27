@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Card,
   Row,
@@ -27,7 +27,6 @@ import { dashboardApi } from "../api/dashboard.api";
 const { RangePicker } = DatePicker;
 const { Text } = Typography;
 
-// Mapper cho trạng thái hóa đơn
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
   Cho_duyet: { label: "Chờ duyệt", color: "default" },
   Dang_xu_ly: { label: "Đang xử lý", color: "blue" },
@@ -103,7 +102,6 @@ export default function Dashboard() {
     fetchData();
   }, [from, to]);
 
-  // Format tiền tệ Việt Nam
   const formatCurrency = (val: number) =>
     new Intl.NumberFormat("vi-VN", {
       style: "currency",
@@ -131,7 +129,6 @@ export default function Dashboard() {
     },
   ];
 
-  // Dữ liệu biểu đồ gộp
   const combinedChartData = useMemo(() => {
     const data: any[] = [];
     Object.entries(dailySalesRevenue).forEach(([day, rev]) =>
@@ -173,7 +170,6 @@ export default function Dashboard() {
         </Space>
       </Card>
 
-      {/* KPI Section */}
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={8}>
           <Card bordered={false} style={{ borderRadius: "12px" }}>
@@ -217,10 +213,9 @@ export default function Dashboard() {
       </Row>
 
       <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
-        {/* Top Products */}
         <Col xs={24} lg={14}>
           <Card
-            title="🏆 Top sản phẩm bán chạy"
+            title="Top sản phẩm bán chạy"
             bordered={false}
             style={{ borderRadius: "12px" }}
           >
@@ -234,10 +229,9 @@ export default function Dashboard() {
           </Card>
         </Col>
 
-        {/* Status Section */}
         <Col xs={24} lg={10}>
           <Card
-            title="📊 Trạng thái giao dịch"
+            title="Trạng thái"
             bordered={false}
             style={{ borderRadius: "12px" }}
           >
@@ -278,11 +272,10 @@ export default function Dashboard() {
         </Col>
       </Row>
 
-      {/* Chart Section */}
       <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
         <Col span={24}>
           <Card
-            title="📈 Biểu đồ so sánh thu chi theo ngày"
+            title="Biểu đồ so sánh thu chi theo ngày"
             bordered={false}
             style={{ borderRadius: "12px" }}
           >

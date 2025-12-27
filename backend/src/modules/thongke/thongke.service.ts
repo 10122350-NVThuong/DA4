@@ -206,8 +206,6 @@ export class StatisticsService {
   }
 
   async getProfit(from: string, to: string) {
-    const startDate = dayjs(from).startOf('day').toDate();
-    const endDate = dayjs(to).endOf('day').toDate();
     const sales = await this.getSalesRevenueAndOrders(from, to);
     const purchase = await this.getPurchaseRevenueAndInvoices(from, to);
 
